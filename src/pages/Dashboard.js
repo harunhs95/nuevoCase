@@ -11,7 +11,7 @@ import { createStructuredSelector } from 'reselect';
 import { selectData } from '../store/selectors';
 import { getData } from '../store/actions';
 import {
-  FilterContainer, SearchContainer, ListContainer, ListItem, CustomButton, HeaderContainer,
+  FilterContainer, SearchContainer, ListContainer, ListItem, HeaderContainer, FilterButton, SearchButton,
 } from '../assets/styled';
 
 class Dashboard extends Component {
@@ -22,6 +22,8 @@ class Dashboard extends Component {
       name: '',
       companyList: [],
       allData: [],
+      jobTitle: '',
+      selectedArea: '',
     };
     this.props.getData();
   }
@@ -47,31 +49,39 @@ class Dashboard extends Component {
       if (name === '' && companyList.length > 0) {
         return companyList.find((company) => company === listItem.company);
       }
-      return (name !== '' && companyList.length > 0) ? (listItem.name.toLowerCase().includes(name.toLowerCase()) && companyList.find((company) => company === listItem.company)) : listItem;
+      return (name !== '' && companyList.length > 0)
+        ? (
+          listItem.name.toLowerCase().includes(name.toLowerCase())
+          && companyList.find((company) => company === listItem.company)
+        )
+        : listItem;
     });
     this.setState({ allData: newArray, showList: true });
   }
 
-  handleChangeJobTitle = (e) => {
-    const { data } = this.props;
-    let temp = [];
-    if (e.target.value.length > 0) {
-      temp = data.filter((item) => item.job.toLowerCase().includes(e.target.value.toLowerCase()));
-      this.setState({ allData: temp });
-    } else {
-      this.setState({ allData: this.props.data });
-    }
+  handleFilter = () => {
+    const { jobTitle, selectedArea, allData } = this.state;
+    const newArray = allData.filter((listItem) => {
+      if (jobTitle !== '' && selectedArea === '') {
+        return listItem.job.toLowerCase().includes(jobTitle.toLowerCase());
+      }
+      if (jobTitle === '' && selectedArea !== '') {
+        return listItem.area.toLowerCase() === selectedArea.toLowerCase();
+      }
+      return (jobTitle !== '' && selectedArea !== '') ? (listItem.job.toLowerCase().includes(jobTitle.toLowerCase()) && listItem.area.toLowerCase() === selectedArea.toLowerCase()) : listItem;
+    });
+    this.setState({ allData: newArray });
   }
 
-  handleSelectArea = (e) => {
-    const { data } = this.props;
-    let temp = [];
-    temp = data.filter((item) => item.area.toLowerCase() === e.target.value.toLowerCase());
-    this.setState({ allData: temp });
+  handleClear = () => {
+    this.setState({
+      jobTitle: '',
+      selectedArea: '',
+    });
   }
 
   render() {
-    const { showList } = this.state;
+    const { showList, jobTitle, selectedArea } = this.state;
     return (
       <div style={{ height: '100%' }}>
         <Grid container>
@@ -85,12 +95,27 @@ class Dashboard extends Component {
               <Hidden xsDown>
                 <Grid container item lg={2} sm={3} xs={12}>
                   <FilterContainer>
-                    <TextField onChange={this.handleChangeJobTitle} style={{ width: '100%' }} variant="outlined" label="Job title" />
-                    <TextField select onChange={this.handleSelectArea} style={{ marginTop: 20, width: '100%' }} variant="outlined" label="Area">
+                    <TextField
+                      value={jobTitle}
+                      onChange={(e) => this.setState({ jobTitle: e.target.value })}
+                      style={{ width: '100%' }}
+                      variant="outlined"
+                      label="Job title"
+                    />
+                    <TextField
+                      value={selectedArea}
+                      select
+                      onChange={(e) => this.setState({ selectedArea: e.target.value })}
+                      style={{ marginTop: 20, width: '100%' }}
+                      variant="outlined"
+                      label="Area"
+                    >
                       {this.props.data.map((r) => (
                         <MenuItem value={r.area}>{r.area}</MenuItem>
                       ))}
                     </TextField>
+                    <FilterButton onClick={this.handleFilter}>Filter</FilterButton>
+                    <FilterButton onClick={this.handleClear}>Clear</FilterButton>
                   </FilterContainer>
                 </Grid>
               </Hidden>
@@ -98,7 +123,11 @@ class Dashboard extends Component {
             <Grid container item lg={showList ? 10 : 12} sm={showList ? 9 : 12} xs={12}>
               <Grid item xs={12}>
                 <SearchContainer>
-                  <TextField onChange={(e) => this.setState({ name: e.target.value })} variant="outlined" label="Name" />
+                  <TextField
+                    onChange={(e) => this.setState({ name: e.target.value })}
+                    variant="outlined"
+                    label="Name"
+                  />
                   <Autocomplete
                     multiple
                     disableCloseOnSelect
@@ -127,19 +156,31 @@ class Dashboard extends Component {
                       />
                     )}
                   />
-                  <CustomButton onClick={this.handleSearch}>Search</CustomButton>
+                  <SearchButton onClick={this.handleSearch}>Search</SearchButton>
                 </SearchContainer>
               </Grid>
               {showList && (
                 <Hidden smUp>
                   <Grid item xs={12}>
                     <FilterContainer>
-                      <TextField onChange={this.handleChangeJobTitle} style={{ width: '100%' }} variant="outlined" label="Job title" />
-                      <TextField select onChange={this.handleSelectArea} style={{ marginTop: 20, width: '100%' }} variant="outlined" label="Area">
+                      <TextField
+                        onChange={this.handleChangeJobTitle}
+                        style={{ width: '100%' }}
+                        variant="outlined"
+                        label="Job title"
+                      />
+                      <TextField
+                        select
+                        onChange={this.handleSelectArea}
+                        style={{ marginTop: 20, width: '100%' }}
+                        variant="outlined"
+                        label="Area"
+                      >
                         {this.props.data.map((r) => (
                           <MenuItem value={r.area}>{r.area}</MenuItem>
                         ))}
                       </TextField>
+                      <FilterButton onClick={this.handleFilter}>Filter</FilterButton>
                     </FilterContainer>
                   </Grid>
                 </Hidden>

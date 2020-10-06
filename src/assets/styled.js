@@ -57,6 +57,14 @@ export const SearchContainer = styled.div`
   }
 `;
 
+export const FilterButton = styled(Button)`
+  text-transform: none!important;
+  color: white!important;
+  background: #504f4f!important;
+  margin-top: 20px!important;
+  width: 100%;
+`;
+
 export const ListItem = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -75,7 +83,7 @@ export const ListItem = styled.div`
   }
 `;
 
-export const CustomButton = styled(Button)`
+export const SearchButton = styled(Button)`
   text-transform: none!important;
   color: white!important;
   background: #504f4f!important;

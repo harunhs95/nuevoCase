@@ -24,6 +24,7 @@ class Dashboard extends Component {
       allData: [],
       jobTitle: '',
       selectedArea: '',
+      toBeFiltered: [],
     };
     this.props.getData();
   }
@@ -56,12 +57,12 @@ class Dashboard extends Component {
         )
         : listItem;
     });
-    this.setState({ allData: newArray, showList: true });
+    this.setState({ allData: newArray, showList: true, toBeFiltered: newArray });
   }
 
   handleFilter = () => {
-    const { jobTitle, selectedArea, allData } = this.state;
-    const newArray = allData.filter((listItem) => {
+    const { jobTitle, selectedArea, toBeFiltered } = this.state;
+    const newArray = toBeFiltered.filter((listItem) => {
       if (jobTitle !== '' && selectedArea === '') {
         return listItem.job.toLowerCase().includes(jobTitle.toLowerCase());
       }
@@ -74,9 +75,11 @@ class Dashboard extends Component {
   }
 
   handleClear = () => {
+    const { toBeFiltered } = this.state;
     this.setState({
       jobTitle: '',
       selectedArea: '',
+      allData: toBeFiltered,
     });
   }
 
